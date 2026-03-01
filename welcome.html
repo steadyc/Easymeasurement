@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome — Easymeasurement</title>
+  <!-- Tailwind CSS CDN — used for full-screen video container and Next button positioning -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes scanLine {
+      0%   { top: 8%;  opacity: 0; }
+      5%   { opacity: 1; }
+      95%  { opacity: 1; }
+      100% { top: 92%; opacity: 0; }
+    }
+    @keyframes pulseRing {
+      0%   { transform: translate(-50%, -50%) scale(0.7); opacity: 0.6; }
+      100% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; }
+    }
+    @keyframes cornerPulse {
+      0%, 100% { opacity: 0.4; }
+      50%       { opacity: 1; }
+    }
+
+    .anim-1 { animation: fadeInUp 0.7s ease both; }
+    .anim-2 { animation: fadeInUp 0.7s ease 0.35s both; }
+    .anim-3 { animation: fadeInUp 0.7s ease 0.65s both; }
+
+    #scanLineEl { animation: scanLine 3.5s ease-in-out infinite; }
+
+    .pulse-ring {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 120px; height: 120px;
+      border: 2px solid rgba(96, 165, 250, 0.5);
+      border-radius: 50%;
+      animation: pulseRing 2.4s ease-out infinite;
+    }
+    .pulse-ring:nth-child(2) { animation-delay: 0.8s; }
+    .pulse-ring:nth-child(3) { animation-delay: 1.6s; }
+
+    .corner { animation: cornerPulse 2s ease-in-out infinite; }
+    .corner:nth-child(2) { animation-delay: 0.5s; }
+    .corner:nth-child(3) { animation-delay: 1s; }
+    .corner:nth-child(4) { animation-delay: 1.5s; }
+  </style>
+</head>
+<body class="m-0 p-0 bg-slate-950">
+
+  <!--
+    ╔══════════════════════════════════════════════════╗
+    ║  Full-screen video container (Tailwind)          ║
+    ╚══════════════════════════════════════════════════╝
+  -->
+  <div class="relative h-screen w-full overflow-hidden">
+
+    <!--
+      VIDEO BACKGROUND
+      ─────────────────────────────────────────────────
+      Replace the `src` below with your AR / scanning .mp4 video URL or local path.
+      Example: <source src="./assets/ar-scan.mp4" type="video/mp4">
+               <source src="https://example.com/ar-scan.mp4" type="video/mp4">
+
+      Attributes:
+        autoplay  — starts immediately
+        muted     — required for autoplay on mobile
+        loop      — loops continuously
+        playsinline — prevents fullscreen on iOS
+    -->
+    <video
+      id="bgVideo"
+      class="absolute inset-0 w-full h-full object-cover"
+      autoplay
+      muted
+      loop
+      playsinline
+    >
+      <source src="YOUR_VIDEO_URL_HERE.mp4" type="video/mp4">
+    </video>
+
+    <!-- ── Animated AR fallback (shown when no video src is provided) ── -->
+    <div id="videoFallback" class="absolute inset-0 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900">
+
+      <!-- Scanning line -->
+      <div id="scanLineEl" class="absolute left-0 right-0 h-px bg-blue-400/50 z-10" style="top: 8%;"></div>
+
+      <!-- Center AR ring animation -->
+      <div class="absolute inset-0 flex items-center justify-center">
+        <div class="relative" style="width:120px; height:120px;">
+          <div class="pulse-ring"></div>
+          <div class="pulse-ring"></div>
+          <div class="pulse-ring"></div>
+          <!-- Center icon -->
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="w-14 h-14 rounded-full bg-blue-500/10 border border-blue-400/40 flex items-center justify-center backdrop-blur-sm">
+              <svg class="w-7 h-7 text-blue-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 7l4 4-4 4M21 11H7"/>
+                <line stroke-linecap="round" x1="21" y1="7" x2="21" y2="15"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AR corner brackets -->
+      <div class="absolute inset-8 pointer-events-none">
+        <!-- Top-left -->
+        <div class="corner absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-blue-400/70 rounded-tl-sm"></div>
+        <!-- Top-right -->
+        <div class="corner absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-blue-400/70 rounded-tr-sm"></div>
+        <!-- Bottom-left -->
+        <div class="corner absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-blue-400/70 rounded-bl-sm"></div>
+        <!-- Bottom-right -->
+        <div class="corner absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-blue-400/70 rounded-br-sm"></div>
+      </div>
+
+      <!-- Subtle grid overlay -->
+      <div class="absolute inset-0 opacity-5"
+        style="background-image: linear-gradient(rgba(96,165,250,1) 1px, transparent 1px), linear-gradient(90deg, rgba(96,165,250,1) 1px, transparent 1px); background-size: 48px 48px;">
+      </div>
+    </div>
+
+    <!-- ── Dark gradient overlay ── -->
+    <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/70 z-10"></div>
+
+    <!-- ── Centered content ── -->
+    <div class="relative z-20 h-full flex flex-col items-center justify-center px-6 text-center">
+
+      <!-- Logo -->
+      <div class="anim-1 mb-8 flex items-center gap-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-sky-400 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24">
+            <path d="M3 7l4 4-4 4M21 11H7"/><line x1="21" y1="7" x2="21" y2="15"/>
+          </svg>
+        </div>
+        <span class="text-white text-lg font-bold tracking-tight">Easymeasurement</span>
+      </div>
+
+      <!-- Conditional welcome caption -->
+      <div class="anim-2 max-w-lg">
+        <h1 id="welcomeCaption" class="text-4xl sm:text-5xl font-bold text-white leading-tight mb-4 drop-shadow-lg">
+          <!-- Set by JS based on isNewUser -->
+        </h1>
+        <p id="welcomeSub" class="text-blue-200/90 text-lg sm:text-xl leading-relaxed">
+          <!-- Set by JS -->
+        </p>
+      </div>
+
+    </div>
+
+    <!--
+      ╔══════════════════════════════════════════════════╗
+      ║  "Next" button — bottom-right (Tailwind)         ║
+      ╚══════════════════════════════════════════════════╝
+    -->
+    <div class="absolute bottom-8 right-8 z-30 anim-3">
+      <button
+        onclick="goNext()"
+        class="group flex items-center gap-2 bg-white text-gray-900 font-semibold text-sm px-6 py-3 rounded-full shadow-2xl shadow-black/30 hover:bg-blue-50 hover:shadow-blue-500/20 active:scale-95 transition-all duration-200"
+      >
+        Next
+        <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M9 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </div>
+
+  </div><!-- end .relative.h-screen -->
+
+  <script>
+    /* ── State helpers ──────────────────────────────────────────── */
+    function getState() { return JSON.parse(localStorage.getItem('em_state') || '{}'); }
+    function setState(patch) {
+      var s = getState();
+      localStorage.setItem('em_state', JSON.stringify(Object.assign(s, patch)));
+    }
+
+    /* ── Auth guard ─────────────────────────────────────────────── */
+    var appState = getState();
+    if (!appState.isLoggedIn) { window.location.replace('index.html'); }
+
+    /* ── Conditional caption (New User vs. Returning User) ─────── */
+    var caption = document.getElementById('welcomeCaption');
+    var sub     = document.getElementById('welcomeSub');
+
+    if (appState.isNewUser) {
+      caption.textContent = "Welcome! Let's get you started.";
+      sub.textContent     = "A few quick steps and you'll be measuring smarter in no time.";
+    } else {
+      caption.textContent = 'Welcome back! Ready to measure?';
+      sub.textContent     = 'Pick up right where you left off.';
+    }
+
+    /* ── Video / fallback logic ─────────────────────────────────── */
+    var video    = document.getElementById('bgVideo');
+    var fallback = document.getElementById('videoFallback');
+
+    // If src is still the placeholder, keep fallback visible and hide video
+    var src = (video.querySelector('source') || {}).src || '';
+    if (!src || src.includes('YOUR_VIDEO_URL_HERE')) {
+      video.style.display = 'none';
+      // fallback stays visible
+    } else {
+      // Hide fallback once video data is ready; show it on error
+      fallback.style.display = 'none';
+      video.addEventListener('error', function() {
+        video.style.display = 'none';
+        fallback.style.display = 'block';
+      });
+      video.addEventListener('loadeddata', function() {
+        fallback.style.display = 'none';
+      });
+    }
+
+    /* ── Navigation ─────────────────────────────────────────────── */
+    function goNext() {
+      setState({ hasSeenWelcome: true });
+      window.location.href = 'onboarding.html';
+    }
+  </script>
+
+</body>
+</html>

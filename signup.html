@@ -312,8 +312,19 @@
 </div>
 
 <script>
+  function setAppState(isNewUser) {
+    var s = JSON.parse(localStorage.getItem('em_state') || '{}');
+    localStorage.setItem('em_state', JSON.stringify(Object.assign(s, {
+      isLoggedIn: true,
+      isNewUser: isNewUser,
+      hasSeenWelcome: false,
+      hasCompletedOnboarding: false
+    })));
+  }
+
   function handleSocial(provider) {
-    alert("Redirecting to " + provider + " sign-up…\n(Connect your OAuth provider here)");
+    setAppState(true);
+    window.location.href = "welcome.html";
   }
 
   function handleSubmit(e) {
@@ -322,7 +333,8 @@
     const success = document.getElementById("successMsg");
     form.style.display = "none";
     success.style.display = "flex";
-    setTimeout(() => { window.location.href = "index.html"; }, 2000);
+    setAppState(true);
+    setTimeout(() => { window.location.href = "welcome.html"; }, 1500);
   }
 </script>
 

@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Easymeasurement — Measure Anything From a Photo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #2563eb;
+      --blue-light: #0ea5e9;
+      --green: #22c55e;
+      --red: #ef4444;
+      --orange: #f59e0b;
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --muted: #64748b;
+      --line: #f59e0b;
+      --point: #ef4444;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .logo-icon {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, var(--blue), var(--blue-light));
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-icon svg { width: 18px; height: 18px; fill: #fff; }
+    .logo-text { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+
+    .header-actions { display: flex; gap: 10px; align-items: center; }
+
+    /* ── Layout ── */
+    .app {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px;
+      gap: 16px;
+    }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s, opacity 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn:hover { background: #f8fafc; border-color: #cbd5e1; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+    .btn:active { opacity: 0.85; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn.primary {
+      background: linear-gradient(135deg, var(--blue), var(--blue-light));
+      color: #fff;
+      border-color: transparent;
+    }
+    .btn.primary:hover { opacity: 0.9; background: linear-gradient(135deg, var(--blue), var(--blue-light)); }
+
+    .btn.danger { border-color: #fca5a5; color: var(--red); }
+    .btn.danger:hover { background: #fef2f2; }
+
+    .btn.active-mode {
+      background: #eff6ff;
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .toolbar-sep { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+
+    .unit-select {
+      padding: 9px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      outline: none;
+    }
+
+    /* ── Canvas area ── */
+    .canvas-wrapper {
+      flex: 1;
+      min-height: 400px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Empty state */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      text-align: center;
+      padding: 40px;
+      pointer-events: none;
+    }
+
+    .empty-state.hidden { display: none; }
+
+    .empty-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--bg);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .empty-icon svg { width: 40px; height: 40px; color: #94a3b8; }
+
+    .empty-state h2 { font-size: 20px; font-weight: 700; color: var(--text); }
+    .empty-state p { font-size: 14px; color: var(--muted); max-width: 280px; line-height: 1.5; }
+
+    .upload-zone {
+      position: absolute;
+      inset: 0;
+      cursor: pointer;
+    }
+
+    .upload-zone.has-image { pointer-events: none; }
+
+    #mainCanvas {
+      display: none;
+      max-width: 100%;
+      max-height: 100%;
+      cursor: crosshair;
+    }
+
+    #mainCanvas.visible { display: block; }
+
+    /* ── Status bar ── */
+    .statusbar {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .statusbar .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #94a3b8;
+      flex-shrink: 0;
+    }
+
+    .statusbar .dot.green { background: var(--green); }
+    .statusbar .dot.orange { background: var(--orange); }
+    .statusbar .dot.blue { background: var(--blue); }
+
+    /* ── Result card ── */
+    .result-card {
+      display: none;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 24px;
+      gap: 24px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .result-card.visible { display: flex; }
+
+    .result-item { display: flex; flex-direction: column; gap: 3px; }
+    .result-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); }
+
+    .result-value {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--blue);
+      letter-spacing: -0.5px;
+    }
+
+    .result-value.pixels { font-size: 16px; color: var(--muted); font-weight: 600; }
+
+    .result-sep { width: 1px; height: 40px; background: var(--border); }
+
+    .calib-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .calib-badge.set { background: #f0fdf4; color: #16a34a; }
+    .calib-badge.unset { background: #fef3c7; color: #92400e; }
+
+    /* ── Calibration modal ── */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-backdrop.visible { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.18);
+    }
+
+    .modal h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .modal p { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+
+    .modal .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .modal .field label { font-size: 13px; font-weight: 600; color: #374151; }
+
+    .modal .field input {
+      padding: 11px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .modal .field input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+    }
+
+    .modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+    .modal-actions .btn { flex: 1; justify-content: center; padding: 11px; }
+
+    /* ── Help tip ── */
+    .help-tip {
+      display: flex;
+      gap: 8px;
+      padding: 10px 14px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      font-size: 13px;
+      color: #1d4ed8;
+      line-height: 1.5;
+    }
+
+    .help-tip svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .app { padding: 12px; gap: 10px; }
+      header { padding: 0 16px; }
+      .toolbar { gap: 6px; }
+      .btn { padding: 8px 12px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Auth guard ── -->
+<script>
+  (function() {
+    var s = JSON.parse(localStorage.getItem('em_state') || '{}');
+    if (!s.isLoggedIn) { window.location.replace('index.html'); }
+  })();
+</script>
+
+<!-- ── Header ── -->
+<header>
+  <a href="#" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 6h18M3 10h18M3 14h18M3 18h18" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M6 4v2M9 4v4M12 4v2M15 4v4M18 4v2"/>
+      </svg>
+    </div>
+    <span class="logo-text">Easymeasurement</span>
+  </a>
+  <div class="header-actions">
+    <button class="btn" onclick="signOut()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Sign out
+    </button>
+  </div>
+</header>
+
+<!-- ── Main app ── -->
+<main class="app">
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <!-- Upload -->
+    <button class="btn primary" id="btnUpload" title="Upload image from your device">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      Upload image
+    </button>
+
+    <!-- Camera -->
+    <button class="btn" id="btnCamera" title="Take a photo with your camera">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+        <circle cx="12" cy="13" r="4"/>
+      </svg>
+      Camera
+    </button>
+
+    <div class="toolbar-sep"></div>
+
+    <!-- Calibrate -->
+    <button class="btn" id="btnCalibrate" disabled title="Draw a reference line then set its real-world length">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="4" y1="12" x2="20" y2="12"/><polyline points="4 8 4 16"/><polyline points="20 8 20 16"/>
+      </svg>
+      Calibrate
+    </button>
+
+    <!-- Measure -->
+    <button class="btn" id="btnMeasure" disabled title="Draw a measurement line on the image">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 7l4 4-4 4M21 11H7"/><line x1="21" y1="7" x2="21" y2="15"/>
+      </svg>
+      Measure
+    </button>
+
+    <div class="toolbar-sep"></div>
+
+    <!-- Unit selector -->
+    <select class="unit-select" id="unitSelect" title="Unit for measurements">
+      <option value="cm">cm</option>
+      <option value="mm">mm</option>
+      <option value="m">m</option>
+      <option value="in">inches</option>
+      <option value="ft">feet</option>
+    </select>
+
+    <!-- Clear -->
+    <button class="btn danger" id="btnClear" disabled title="Clear lines and reset">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m5 0V4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2"/>
+      </svg>
+      Clear
+    </button>
+  </div>
+
+  <!-- Help tip (shown initially) -->
+  <div class="help-tip" id="helpTip">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <span id="helpText">Upload or capture a photo to get started. Then calibrate for real-world units, or measure in pixels right away.</span>
+  </div>
+
+  <!-- Canvas -->
+  <div class="canvas-wrapper" id="canvasWrapper">
+    <!-- Empty state -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21 15 16 10 5 21"/>
+        </svg>
+      </div>
+      <h2>No image loaded</h2>
+      <p>Click <strong>Upload image</strong> or use <strong>Camera</strong> to load a photo, then draw measurement lines.</p>
+    </div>
+
+    <!-- Invisible upload trigger -->
+    <div class="upload-zone" id="uploadZone"></div>
+
+    <!-- Main canvas -->
+    <canvas id="mainCanvas"></canvas>
+  </div>
+
+  <!-- Status bar -->
+  <div class="statusbar">
+    <div class="dot" id="statusDot"></div>
+    <span id="statusText">No image loaded — upload or capture a photo to start</span>
+  </div>
+
+  <!-- Result card -->
+  <div class="result-card" id="resultCard">
+    <div class="result-item">
+      <span class="result-label">Measured distance</span>
+      <span class="result-value" id="resultDistance">—</span>
+    </div>
+    <div class="result-sep"></div>
+    <div class="result-item">
+      <span class="result-label">Pixels</span>
+      <span class="result-value pixels" id="resultPixels">—</span>
+    </div>
+    <div class="result-sep"></div>
+    <div class="result-item">
+      <span class="result-label">Calibration</span>
+      <span class="calib-badge unset" id="calibBadge">Not set</span>
+    </div>
+    <div class="result-sep"></div>
+    <div class="result-item">
+      <span class="result-label">Scale</span>
+      <span class="result-value pixels" id="resultScale">—</span>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── Hidden file input ── -->
+<input type="file" id="fileInput" accept="image/*" style="display:none" />
+
+<!-- ── Camera video (hidden) ── -->
+<video id="cameraVideo" style="display:none" playsinline autoplay></video>
+<canvas id="captureCanvas" style="display:none"></canvas>
+
+<!-- ── Calibration modal ── -->
+<div class="modal-backdrop" id="calibModal">
+  <div class="modal">
+    <h2>Set calibration reference</h2>
+    <p>You drew a line over a known object. Enter its real-world length so future measurements are converted to actual units.</p>
+    <div class="field">
+      <label for="calibLength">Known length</label>
+      <input type="number" id="calibLength" placeholder="e.g. 30" min="0.001" step="any" />
+    </div>
+    <div class="field">
+      <label for="calibUnit">Unit</label>
+      <select id="calibUnit" class="unit-select" style="width:100%;padding:11px 14px;font-size:14px">
+        <option value="cm">cm</option>
+        <option value="mm">mm</option>
+        <option value="m">m</option>
+        <option value="in">inches</option>
+        <option value="ft">feet</option>
+      </select>
+    </div>
+    <p style="margin-top:0;font-size:12px;color:#64748b">Calibration line: <strong id="calibPixelLen">—</strong> pixels</p>
+    <div class="modal-actions">
+      <button class="btn" id="calibCancel">Cancel</button>
+      <button class="btn primary" id="calibConfirm">Apply calibration</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Camera modal ── -->
+<div class="modal-backdrop" id="cameraModal">
+  <div class="modal" style="max-width:500px;padding:24px">
+    <h2 style="margin-bottom:12px">Take a photo</h2>
+    <video id="liveVideo" autoplay playsinline style="width:100%;border-radius:10px;background:#000;aspect-ratio:4/3;object-fit:cover"></video>
+    <div class="modal-actions" style="margin-top:16px">
+      <button class="btn" id="cameraCancelBtn">Cancel</button>
+      <button class="btn primary" id="cameraSnapBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px">
+          <circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="9"/>
+        </svg>
+        Capture
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ─────────────────────────────────────────────
+     Sign out
+  ───────────────────────────────────────────── */
+  function signOut() {
+    localStorage.removeItem('em_state');
+    window.location.href = 'index.html';
+  }
+
+  /* ─────────────────────────────────────────────
+     State
+  ───────────────────────────────────────────── */
+  const state = {
+    image: null,          // HTMLImageElement
+    mode: 'idle',         // idle | calibrating | measuring
+    points: [],           // [{x,y}] canvas-space
+    calibScale: null,     // pixels per unit (null = uncalibrated)
+    calibUnit: 'cm',
+    lines: [],            // [{p1,p2,type,pixelDist,realDist,unit}]
+    cameraStream: null,
+  };
+
+  /* ─────────────────────────────────────────────
+     DOM refs
+  ───────────────────────────────────────────── */
+  const canvas       = document.getElementById('mainCanvas');
+  const ctx          = canvas.getContext('2d');
+  const fileInput    = document.getElementById('fileInput');
+  const emptyState   = document.getElementById('emptyState');
+  const uploadZone   = document.getElementById('uploadZone');
+  const statusDot    = document.getElementById('statusDot');
+  const statusText   = document.getElementById('statusText');
+  const resultCard   = document.getElementById('resultCard');
+  const resultDist   = document.getElementById('resultDistance');
+  const resultPx     = document.getElementById('resultPixels');
+  const resultScale  = document.getElementById('resultScale');
+  const calibBadge   = document.getElementById('calibBadge');
+  const helpText     = document.getElementById('helpText');
+  const unitSelect   = document.getElementById('unitSelect');
+
+  /* ─────────────────────────────────────────────
+     Toolbar buttons
+  ───────────────────────────────────────────── */
+  document.getElementById('btnUpload').addEventListener('click', () => fileInput.click());
+  document.getElementById('btnCamera').addEventListener('click', openCamera);
+  document.getElementById('btnCalibrate').addEventListener('click', () => startMode('calibrating'));
+  document.getElementById('btnMeasure').addEventListener('click', () => startMode('measuring'));
+  document.getElementById('btnClear').addEventListener('click', clearLines);
+
+  uploadZone.addEventListener('click', () => { if (!state.image) fileInput.click(); });
+
+  // Drag-and-drop on canvas wrapper
+  const wrapper = document.getElementById('canvasWrapper');
+  wrapper.addEventListener('dragover', e => { e.preventDefault(); wrapper.style.borderColor = '#2563eb'; });
+  wrapper.addEventListener('dragleave', () => { wrapper.style.borderColor = ''; });
+  wrapper.addEventListener('drop', e => {
+    e.preventDefault();
+    wrapper.style.borderColor = '';
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) loadImageFile(file);
+  });
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) loadImageFile(fileInput.files[0]);
+    fileInput.value = '';
+  });
+
+  /* ─────────────────────────────────────────────
+     Load image
+  ───────────────────────────────────────────── */
+  function loadImageFile(file) {
+    const reader = new FileReader();
+    reader.onload = e => loadImageSrc(e.target.result);
+    reader.readAsDataURL(file);
+  }
+
+  function loadImageSrc(src) {
+    const img = new Image();
+    img.onload = () => {
+      state.image = img;
+      state.lines = [];
+      state.points = [];
+      state.mode = 'idle';
+      resizeCanvas();
+      drawScene();
+      enableControls();
+      setStatus('green', 'Image loaded — click <strong>Calibrate</strong> to set scale, or <strong>Measure</strong> to draw a line');
+      helpText.innerHTML = 'Click two points on the image to draw a measurement line. Use <strong>Calibrate</strong> first for real-world units.';
+    };
+    img.src = src;
+  }
+
+  function resizeCanvas() {
+    const img = state.image;
+    const maxW = wrapper.clientWidth  - 2;
+    const maxH = Math.max(400, window.innerHeight - 280);
+    const ratio = Math.min(maxW / img.width, maxH / img.height, 1);
+    canvas.width  = Math.round(img.width  * ratio);
+    canvas.height = Math.round(img.height * ratio);
+    canvas.classList.add('visible');
+    emptyState.classList.add('hidden');
+    uploadZone.classList.add('has-image');
+  }
+
+  window.addEventListener('resize', () => {
+    if (state.image) { resizeCanvas(); drawScene(); }
+  });
+
+  /* ─────────────────────────────────────────────
+     Drawing
+  ───────────────────────────────────────────── */
+  function drawScene() {
+    if (!state.image) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(state.image, 0, 0, canvas.width, canvas.height);
+
+    // Draw committed lines
+    state.lines.forEach(line => drawLine(line.p1, line.p2, line.type, line.label));
+
+    // Draw in-progress points
+    if (state.points.length === 1) {
+      drawPoint(state.points[0], state.mode === 'calibrating' ? '#f59e0b' : '#ef4444');
+    }
+  }
+
+  function drawLine(p1, p2, type, label) {
+    const color = type === 'calibrate' ? '#f59e0b' : '#ef4444';
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash(type === 'calibrate' ? [6, 3] : []);
+    ctx.shadowColor = 'rgba(0,0,0,0.35)';
+    ctx.shadowBlur = 4;
+
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.stroke();
+
+    // End caps
+    [p1, p2].forEach(pt => drawPoint(pt, color));
+
+    // Label
+    if (label) {
+      const mx = (p1.x + p2.x) / 2;
+      const my = (p1.y + p2.y) / 2;
+      const pad = 6;
+      ctx.setLineDash([]);
+      ctx.shadowBlur = 0;
+      ctx.font = 'bold 13px -apple-system, sans-serif';
+      const tw = ctx.measureText(label).width;
+      ctx.fillStyle = 'rgba(0,0,0,0.7)';
+      ctx.beginPath();
+      ctx.roundRect(mx - tw/2 - pad, my - 10 - pad, tw + pad*2, 20 + pad, 6);
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(label, mx, my);
+    }
+    ctx.restore();
+  }
+
+  function drawPoint(pt, color) {
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.shadowColor = 'rgba(0,0,0,0.3)';
+    ctx.shadowBlur = 4;
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  /* ─────────────────────────────────────────────
+     Canvas mouse / touch interaction
+  ───────────────────────────────────────────── */
+  canvas.addEventListener('click', e => {
+    if (state.mode === 'idle') return;
+    const pt = getCanvasPoint(e);
+    state.points.push(pt);
+
+    if (state.points.length === 1) {
+      drawScene(); // show first point
+      setStatus(
+        state.mode === 'calibrating' ? 'orange' : 'blue',
+        'First point set — click the <strong>second point</strong> to complete the line'
+      );
+    } else {
+      const [p1, p2] = state.points;
+      const pixelDist = dist(p1, p2);
+      commitLine(p1, p2, state.mode, pixelDist);
+      state.points = [];
+    }
+  });
+
+  // Live preview line while hovering
+  canvas.addEventListener('mousemove', e => {
+    if (state.mode === 'idle' || state.points.length !== 1) return;
+    const pt = getCanvasPoint(e);
+    drawScene();
+    // Preview line
+    const color = state.mode === 'calibrating' ? '#f59e0b' : '#ef4444';
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 3]);
+    ctx.globalAlpha = 0.7;
+    ctx.beginPath();
+    ctx.moveTo(state.points[0].x, state.points[0].y);
+    ctx.lineTo(pt.x, pt.y);
+    ctx.stroke();
+    ctx.restore();
+  });
+
+  function getCanvasPoint(e) {
+    const r = canvas.getBoundingClientRect();
+    return {
+      x: (e.clientX - r.left) * (canvas.width  / r.width),
+      y: (e.clientY - r.top)  * (canvas.height / r.height),
+    };
+  }
+
+  function dist(a, b) {
+    return Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2);
+  }
+
+  /* ─────────────────────────────────────────────
+     Commit a line
+  ───────────────────────────────────────────── */
+  function commitLine(p1, p2, type, pixelDist) {
+    if (type === 'calibrating') {
+      // Show calibration modal
+      document.getElementById('calibPixelLen').textContent = pixelDist.toFixed(1);
+      document.getElementById('calibModal').classList.add('visible');
+      // Store temporarily
+      state._pendingCalibLine = { p1, p2, pixelDist };
+    } else {
+      // Measurement line
+      const realDist = state.calibScale ? (pixelDist / state.calibScale) : null;
+      const unit = unitSelect.value;
+      const label = realDist !== null
+        ? formatDist(realDist, unit)
+        : `${pixelDist.toFixed(0)}px`;
+
+      state.lines.push({ p1, p2, type: 'measure', pixelDist, realDist, unit, label });
+      drawScene();
+      showResult(pixelDist, realDist, unit);
+      setStatus('green', 'Measurement complete — click <strong>Measure</strong> to draw another line');
+      state.mode = 'idle';
+      updateModeButtons();
+    }
+  }
+
+  /* ─────────────────────────────────────────────
+     Calibration modal
+  ───────────────────────────────────────────── */
+  document.getElementById('calibConfirm').addEventListener('click', () => {
+    const len = parseFloat(document.getElementById('calibLength').value);
+    const unit = document.getElementById('calibUnit').value;
+    if (!len || len <= 0) { alert('Please enter a valid length greater than 0.'); return; }
+
+    const { p1, p2, pixelDist } = state._pendingCalibLine;
+    state.calibScale = pixelDist / len;  // pixels per unit
+    state.calibUnit  = unit;
+    unitSelect.value = unit;
+
+    const label = `REF: ${formatDist(len, unit)}`;
+    state.lines.push({ p1, p2, type: 'calibrate', pixelDist, label });
+
+    closeCalibModal();
+    drawScene();
+    updateCalibBadge();
+    setStatus('green', `Calibrated! Scale: ${state.calibScale.toFixed(2)} px/${unit} — click <strong>Measure</strong> to start`);
+    helpText.innerHTML = `Scale set to <strong>${state.calibScale.toFixed(2)} px/${unit}</strong>. Click <strong>Measure</strong> to draw measurement lines.`;
+    state.mode = 'idle';
+    updateModeButtons();
+    updateResultScale();
+  });
+
+  document.getElementById('calibCancel').addEventListener('click', closeCalibModal);
+
+  function closeCalibModal() {
+    document.getElementById('calibModal').classList.remove('visible');
+    document.getElementById('calibLength').value = '';
+    state._pendingCalibLine = null;
+    if (state.mode === 'calibrating') {
+      state.mode = 'idle';
+      updateModeButtons();
+      setStatus('green', 'Calibration cancelled — click <strong>Calibrate</strong> to try again');
+    }
+    drawScene();
+  }
+
+  /* ─────────────────────────────────────────────
+     Camera
+  ───────────────────────────────────────────── */
+  async function openCamera() {
+    const modal = document.getElementById('cameraModal');
+    const video = document.getElementById('liveVideo');
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+      state.cameraStream = stream;
+      video.srcObject = stream;
+      modal.classList.add('visible');
+    } catch (err) {
+      alert('Camera not available: ' + (err.message || err));
+    }
+  }
+
+  document.getElementById('cameraSnapBtn').addEventListener('click', () => {
+    const video = document.getElementById('liveVideo');
+    const cap = document.getElementById('captureCanvas');
+    cap.width  = video.videoWidth;
+    cap.height = video.videoHeight;
+    cap.getContext('2d').drawImage(video, 0, 0);
+    const dataUrl = cap.toDataURL('image/jpeg', 0.92);
+    closeCamera();
+    loadImageSrc(dataUrl);
+  });
+
+  document.getElementById('cameraCancelBtn').addEventListener('click', closeCamera);
+
+  function closeCamera() {
+    if (state.cameraStream) {
+      state.cameraStream.getTracks().forEach(t => t.stop());
+      state.cameraStream = null;
+    }
+    document.getElementById('liveVideo').srcObject = null;
+    document.getElementById('cameraModal').classList.remove('visible');
+  }
+
+  /* ─────────────────────────────────────────────
+     Modes
+  ───────────────────────────────────────────── */
+  function startMode(mode) {
+    state.mode  = mode;
+    state.points = [];
+    drawScene();
+    updateModeButtons();
+
+    if (mode === 'calibrating') {
+      setStatus('orange', 'Calibration mode — click the <strong>first endpoint</strong> of a known reference object');
+      helpText.innerHTML = 'Click two points over an object of known size (e.g. a ruler, credit card, coin). Then enter its real-world length.';
+    } else {
+      setStatus('blue', 'Measure mode — click the <strong>first endpoint</strong> of what you want to measure');
+      helpText.innerHTML = state.calibScale
+        ? `Click two points to measure. Scale is set (${state.calibScale.toFixed(2)} px/${state.calibUnit}).`
+        : 'No calibration set — measurement will be shown in pixels. Calibrate first for real-world units.';
+    }
+  }
+
+  function updateModeButtons() {
+    document.getElementById('btnCalibrate').classList.toggle('active-mode', state.mode === 'calibrating');
+    document.getElementById('btnMeasure').classList.toggle('active-mode', state.mode === 'measuring');
+  }
+
+  function clearLines() {
+    state.lines  = [];
+    state.points = [];
+    state.mode   = 'idle';
+    updateModeButtons();
+    drawScene();
+    resultCard.classList.remove('visible');
+    setStatus('green', 'Lines cleared — click <strong>Calibrate</strong> or <strong>Measure</strong> to continue');
+    helpText.innerHTML = 'Lines cleared. Click <strong>Calibrate</strong> to set scale, or <strong>Measure</strong> to draw lines.';
+  }
+
+  /* ─────────────────────────────────────────────
+     UI helpers
+  ───────────────────────────────────────────── */
+  function enableControls() {
+    document.getElementById('btnCalibrate').disabled = false;
+    document.getElementById('btnMeasure').disabled   = false;
+    document.getElementById('btnClear').disabled     = false;
+  }
+
+  function setStatus(dotClass, html) {
+    statusDot.className = 'dot ' + dotClass;
+    statusText.innerHTML = html;
+  }
+
+  function showResult(pixelDist, realDist, unit) {
+    resultCard.classList.add('visible');
+    resultPx.textContent = `${pixelDist.toFixed(1)} px`;
+    if (realDist !== null) {
+      resultDist.textContent = formatDist(realDist, unit);
+    } else {
+      resultDist.textContent = `${pixelDist.toFixed(1)} px`;
+    }
+    updateCalibBadge();
+    updateResultScale();
+  }
+
+  function updateCalibBadge() {
+    if (state.calibScale) {
+      calibBadge.textContent = 'Calibrated';
+      calibBadge.className = 'calib-badge set';
+    } else {
+      calibBadge.textContent = 'Not set';
+      calibBadge.className = 'calib-badge unset';
+    }
+  }
+
+  function updateResultScale() {
+    resultScale.textContent = state.calibScale
+      ? `${state.calibScale.toFixed(2)} px/${state.calibUnit}`
+      : '—';
+  }
+
+  function formatDist(val, unit) {
+    const rounded = unit === 'mm' ? Math.round(val) : parseFloat(val.toFixed(2));
+    return `${rounded} ${unit}`;
+  }
+</script>
+</body>
+</html>
