@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign Up — Easymeasurement</title>
+  <link rel="canonical" href="signup.html" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -307,7 +308,7 @@
     <p>Check your inbox for a confirmation email<br>and start measuring smarter.</p>
   </div>
 
-  <p class="signin-link">Already have an account? <a href="#">Sign in</a></p>
+  <p class="signin-link">Already have an account? <a href="index.html">Sign in</a></p>
 </div>
 
 <script>
@@ -321,6 +322,7 @@
     const success = document.getElementById("successMsg");
     form.style.display = "none";
     success.style.display = "flex";
+    setTimeout(() => { window.location.href = "index.html"; }, 2000);
   }
 </script>
 
