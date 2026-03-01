@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sign Up — Easymeasurement</title>
-  <link rel="canonical" href="signup.html" />
+  <title>Sign In — Easymeasurement</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -33,6 +32,8 @@
       gap: 10px;
       margin-bottom: 32px;
       justify-content: center;
+      text-decoration: none;
+      color: inherit;
     }
 
     .logo-icon {
@@ -45,37 +46,15 @@
       justify-content: center;
     }
 
-    .logo-icon svg { width: 20px; height: 20px; fill: #fff; }
+    .logo-icon svg { width: 20px; height: 20px; }
+    .logo-text { font-size: 20px; font-weight: 700; color: #1a1a2e; letter-spacing: -0.3px; }
 
-    .logo-text {
-      font-size: 20px;
-      font-weight: 700;
-      color: #1a1a2e;
-      letter-spacing: -0.3px;
-    }
+    h1 { font-size: 26px; font-weight: 700; text-align: center; color: #1a1a2e; margin-bottom: 6px; }
 
-    h1 {
-      font-size: 26px;
-      font-weight: 700;
-      text-align: center;
-      color: #1a1a2e;
-      margin-bottom: 6px;
-    }
+    .subtitle { text-align: center; color: #6b7280; font-size: 14px; margin-bottom: 32px; }
 
-    .subtitle {
-      text-align: center;
-      color: #6b7280;
-      font-size: 14px;
-      margin-bottom: 32px;
-    }
-
-    /* --- Social buttons --- */
-    .social-options {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
+    /* Social buttons */
+    .social-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
 
     .btn-social {
       display: flex;
@@ -94,15 +73,10 @@
       text-decoration: none;
     }
 
-    .btn-social:hover {
-      background: #f9fafb;
-      border-color: #d1d5db;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-
+    .btn-social:hover { background: #f9fafb; border-color: #d1d5db; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
     .btn-social svg, .btn-social img { width: 20px; height: 20px; flex-shrink: 0; }
 
-    /* --- Divider --- */
+    /* Divider */
     .divider {
       display: flex;
       align-items: center;
@@ -111,19 +85,11 @@
       color: #9ca3af;
       font-size: 13px;
     }
+    .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #e5e7eb; }
 
-    .divider::before, .divider::after {
-      content: "";
-      flex: 1;
-      height: 1px;
-      background: #e5e7eb;
-    }
-
-    /* --- Form --- */
+    /* Form */
     .form { display: flex; flex-direction: column; gap: 16px; }
-
     .field { display: flex; flex-direction: column; gap: 6px; }
-
     .field label { font-size: 13px; font-weight: 600; color: #374151; }
 
     .field input {
@@ -137,15 +103,19 @@
       background: #fafafa;
     }
 
-    .field input:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-      background: #fff;
-    }
-
+    .field input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.12); background: #fff; }
     .field input::placeholder { color: #b0b7c3; }
 
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .field-row label { font-size: 13px; font-weight: 600; color: #374151; }
+
+    .forgot-link { font-size: 13px; color: #2563eb; text-decoration: none; font-weight: 500; }
+    .forgot-link:hover { text-decoration: underline; }
 
     .btn-primary {
       margin-top: 4px;
@@ -164,18 +134,22 @@
     .btn-primary:hover { opacity: 0.92; }
     .btn-primary:active { transform: scale(0.98); }
 
-    .terms {
-      font-size: 12px;
-      color: #9ca3af;
-      text-align: center;
-      margin-top: 4px;
-      line-height: 1.5;
+    /* Error state */
+    .error-msg {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-radius: 10px;
+      font-size: 13px;
+      color: #dc2626;
     }
+    .error-msg.visible { display: flex; }
+    .error-msg svg { width: 16px; height: 16px; flex-shrink: 0; }
 
-    .terms a { color: #2563eb; text-decoration: none; }
-    .terms a:hover { text-decoration: underline; }
-
-    .signin-link {
+    .signup-link {
       text-align: center;
       font-size: 13px;
       color: #6b7280;
@@ -183,35 +157,11 @@
       padding-top: 20px;
       border-top: 1px solid #f3f4f6;
     }
+    .signup-link a { color: #2563eb; font-weight: 600; text-decoration: none; }
+    .signup-link a:hover { text-decoration: underline; }
 
-    .signin-link a { color: #2563eb; font-weight: 600; text-decoration: none; }
-    .signin-link a:hover { text-decoration: underline; }
-
-    /* --- Success state --- */
-    .success-msg {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      text-align: center;
-      padding: 16px 0;
-    }
-
-    .success-msg .check {
-      width: 64px; height: 64px;
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    .success-msg .check svg { width: 32px; height: 32px; stroke: #fff; fill: none; }
-    .success-msg h2 { font-size: 22px; font-weight: 700; color: #1a1a2e; }
-    .success-msg p { color: #6b7280; font-size: 14px; }
-
-    /* Responsive */
     @media (max-width: 480px) {
       .board { padding: 36px 24px; border-radius: 0; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
-      .row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -219,22 +169,22 @@
 
 <div class="board">
   <!-- Logo -->
-  <div class="logo">
+  <a href="index.html" class="logo">
     <div class="logo-icon">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round">
+        <path d="M3 6h18M3 10h18M3 14h18M3 18h18"/>
+        <path d="M6 4v2M9 4v4M12 4v2M15 4v4M18 4v2"/>
       </svg>
     </div>
     <span class="logo-text">Easymeasurement</span>
-  </div>
+  </a>
 
-  <h1>Create your account</h1>
-  <p class="subtitle">Start measuring smarter in seconds</p>
+  <h1>Welcome back</h1>
+  <p class="subtitle">Sign in to continue measuring</p>
 
-  <!-- Social sign-up options -->
+  <!-- Social sign-in -->
   <div class="social-options">
     <button class="btn-social" onclick="handleSocial('Google')">
-      <!-- Google icon -->
       <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
         <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
         <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
@@ -245,7 +195,6 @@
     </button>
 
     <button class="btn-social" onclick="handleSocial('GitHub')">
-      <!-- GitHub icon -->
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#24292e">
         <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/>
       </svg>
@@ -253,7 +202,6 @@
     </button>
 
     <button class="btn-social" onclick="handleSocial('Microsoft')">
-      <!-- Microsoft icon -->
       <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">
         <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
         <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
@@ -264,65 +212,69 @@
     </button>
   </div>
 
-  <div class="divider">or sign up with email</div>
+  <div class="divider">or sign in with email</div>
 
-  <!-- Email form -->
-  <form class="form" id="signupForm" onsubmit="handleSubmit(event)">
-    <div class="row">
-      <div class="field">
-        <label for="firstName">First name</label>
-        <input type="text" id="firstName" placeholder="Jane" required />
-      </div>
-      <div class="field">
-        <label for="lastName">Last name</label>
-        <input type="text" id="lastName" placeholder="Doe" required />
-      </div>
-    </div>
-
-    <div class="field">
-      <label for="email">Email address</label>
-      <input type="email" id="email" placeholder="jane@example.com" required />
-    </div>
-
-    <div class="field">
-      <label for="password">Password</label>
-      <input type="password" id="password" placeholder="Minimum 8 characters" minlength="8" required />
-    </div>
-
-    <button type="submit" class="btn-primary">Create free account</button>
-
-    <p class="terms">
-      By signing up, you agree to our
-      <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
-    </p>
-  </form>
-
-  <!-- Success state (hidden until form submitted) -->
-  <div class="success-msg" id="successMsg">
-    <div class="check">
-      <svg viewBox="0 0 24 24" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="20 6 9 17 4 12"/>
-      </svg>
-    </div>
-    <h2>You're all set!</h2>
-    <p>Check your inbox for a confirmation email<br>and start measuring smarter.</p>
+  <!-- Error message -->
+  <div class="error-msg" id="errorMsg">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <span id="errorText">Invalid email or password. Please try again.</span>
   </div>
 
-  <p class="signin-link">Already have an account? <a href="login.html">Sign in</a></p>
+  <!-- Login form -->
+  <form class="form" id="loginForm" onsubmit="handleSubmit(event)">
+    <div class="field">
+      <label for="email">Email address</label>
+      <input type="email" id="email" placeholder="jane@example.com" required autocomplete="email" />
+    </div>
+
+    <div class="field">
+      <div class="field-row">
+        <label for="password">Password</label>
+        <a href="#" class="forgot-link" onclick="handleForgot(event)">Forgot password?</a>
+      </div>
+      <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password" />
+    </div>
+
+    <button type="submit" class="btn-primary" id="submitBtn">Sign in</button>
+  </form>
+
+  <p class="signup-link">Don't have an account? <a href="signup.html">Sign up free</a></p>
 </div>
 
 <script>
   function handleSocial(provider) {
-    alert("Redirecting to " + provider + " sign-up…\n(Connect your OAuth provider here)");
+    alert("Redirecting to " + provider + " sign-in…\n(Connect your OAuth provider here)");
+  }
+
+  function handleForgot(e) {
+    e.preventDefault();
+    alert("Password reset link sent!\n(Connect your backend here)");
   }
 
   function handleSubmit(e) {
     e.preventDefault();
-    const form = document.getElementById("signupForm");
-    const success = document.getElementById("successMsg");
-    form.style.display = "none";
-    success.style.display = "flex";
-    setTimeout(() => { window.location.href = "index.html"; }, 2000);
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const errorMsg = document.getElementById('errorMsg');
+    const submitBtn = document.getElementById('submitBtn');
+
+    errorMsg.classList.remove('visible');
+    submitBtn.textContent = 'Signing in…';
+    submitBtn.disabled = true;
+
+    // Simulate auth — replace with real API call
+    setTimeout(() => {
+      // Demo: any non-empty email/password succeeds
+      if (email && password.length >= 1) {
+        window.location.href = 'index.html';
+      } else {
+        errorMsg.classList.add('visible');
+        submitBtn.textContent = 'Sign in';
+        submitBtn.disabled = false;
+      }
+    }, 800);
   }
 </script>
 
