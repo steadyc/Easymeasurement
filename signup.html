@@ -8,72 +8,237 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    :root {
+      --bg:        #080c17;
+      --panel:     #0d1220;
+      --card:      rgba(255,255,255,0.04);
+      --border:    rgba(255,255,255,0.09);
+      --blue:      #4361ee;
+      --cyan:      #4cc9f0;
+      --purple:    #7c3aed;
+      --pink:      #f72585;
+      --text:      #f0f4ff;
+      --muted:     #8892b0;
+      --input-bg:  rgba(255,255,255,0.05);
+      --input-border: rgba(255,255,255,0.12);
+      --glow-blue: rgba(67,97,238,0.35);
+      --glow-cyan: rgba(76,201,240,0.25);
+    }
+
+    html, body { height: 100%; }
+
     body {
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: linear-gradient(135deg, #e8f4fd 0%, #f0f9f4 100%);
-      color: #1a1a2e;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
     }
 
-    .board {
-      background: #ffffff;
-      border-radius: 20px;
-      padding: 48px 40px;
+    /* ── Split Layout ── */
+    .layout {
+      display: flex;
       width: 100%;
-      max-width: 440px;
-      box-shadow: 0 4px 32px rgba(0, 0, 0, 0.10);
+      min-height: 100vh;
     }
 
+    /* ═══════════════════════════════
+       LEFT — Brand Panel
+    ═══════════════════════════════ */
+    .brand {
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 48px 56px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+
+    /* Animated gradient orbs */
+    .brand::before {
+      content: "";
+      position: absolute;
+      width: 600px; height: 600px;
+      top: -120px; left: -120px;
+      background: radial-gradient(circle, rgba(67,97,238,0.22) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: drift1 12s ease-in-out infinite alternate;
+    }
+
+    .brand::after {
+      content: "";
+      position: absolute;
+      width: 500px; height: 500px;
+      bottom: -100px; right: -80px;
+      background: radial-gradient(circle, rgba(76,201,240,0.18) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: drift2 14s ease-in-out infinite alternate;
+    }
+
+    @keyframes drift1 {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(60px, 80px) scale(1.15); }
+    }
+    @keyframes drift2 {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(-50px, -60px) scale(1.1); }
+    }
+
+    /* Dot-grid overlay */
+    .brand-grid {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    /* Purple orb center */
+    .brand-orb {
+      position: absolute;
+      width: 320px; height: 320px;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: pulse 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; transform: translate(-50%,-50%) scale(1); }
+      50%       { opacity: 1;   transform: translate(-50%,-50%) scale(1.12); }
+    }
+
+    .brand-content { position: relative; z-index: 2; }
+
+    /* Logo */
     .logo {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 32px;
-      justify-content: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
     }
 
     .logo-icon {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, #2563eb, #0ea5e9);
-      border-radius: 9px;
+      width: 42px; height: 42px;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 24px var(--glow-blue);
+    }
+
+    .logo-icon svg { width: 22px; height: 22px; fill: #fff; }
+    .logo-text { font-size: 22px; font-weight: 800; letter-spacing: -0.4px; }
+
+    /* Headline */
+    .brand-hero { margin-top: auto; padding: 60px 0 48px; }
+
+    .brand-hero h1 {
+      font-size: clamp(32px, 3.5vw, 52px);
+      font-weight: 900;
+      line-height: 1.12;
+      letter-spacing: -1.5px;
+      margin-bottom: 20px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(120deg, var(--blue) 0%, var(--cyan) 50%, var(--purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .brand-hero p {
+      font-size: 17px;
+      color: var(--muted);
+      line-height: 1.65;
+      max-width: 380px;
+    }
+
+    /* Feature pills */
+    .features {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .feature-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      backdrop-filter: blur(8px);
+    }
+
+    .feature-icon svg { width: 18px; height: 18px; }
+
+    .feature-text strong { font-size: 14px; color: var(--text); display: block; line-height: 1.3; }
+    .feature-text span   { font-size: 12px; color: var(--muted); }
+
+    /* ═══════════════════════════════
+       RIGHT — Form Panel
+    ═══════════════════════════════ */
+    .form-panel {
+      width: 480px;
+      min-width: 360px;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 40px 32px;
+      background: var(--bg);
+      position: relative;
     }
 
-    .logo-icon svg { width: 20px; height: 20px; fill: #fff; }
-
-    .logo-text {
-      font-size: 20px;
-      font-weight: 700;
-      color: #1a1a2e;
-      letter-spacing: -0.3px;
+    /* Subtle top glow behind form */
+    .form-panel::before {
+      content: "";
+      position: absolute;
+      width: 400px; height: 200px;
+      top: -60px; left: 50%;
+      transform: translateX(-50%);
+      background: radial-gradient(ellipse, rgba(67,97,238,0.15) 0%, transparent 70%);
+      pointer-events: none;
     }
 
-    h1 {
-      font-size: 26px;
-      font-weight: 700;
-      text-align: center;
-      color: #1a1a2e;
+    .card {
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Card header */
+    .card-header { margin-bottom: 32px; }
+
+    .card-header h2 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      color: var(--text);
       margin-bottom: 6px;
     }
 
-    .subtitle {
-      text-align: center;
-      color: #6b7280;
-      font-size: 14px;
-      margin-bottom: 32px;
-    }
+    .card-header p { font-size: 14px; color: var(--muted); }
 
-    /* --- Social buttons --- */
-    .social-options {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+    /* ── Social buttons ── */
+    .social-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
       margin-bottom: 24px;
     }
 
@@ -81,234 +246,392 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      padding: 13px 20px;
+      gap: 8px;
+      padding: 11px 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
       border-radius: 12px;
-      border: 1.5px solid #e5e7eb;
-      background: #fff;
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 600;
-      color: #374151;
+      color: var(--muted);
       cursor: pointer;
-      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
-      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.15s, box-shadow 0.2s;
+      white-space: nowrap;
     }
+
+    .btn-social svg { width: 18px; height: 18px; flex-shrink: 0; }
 
     .btn-social:hover {
-      background: #f9fafb;
-      border-color: #d1d5db;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.18);
+      color: var(--text);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
     }
 
-    .btn-social svg, .btn-social img { width: 20px; height: 20px; flex-shrink: 0; }
-
-    /* --- Divider --- */
+    /* ── Divider ── */
     .divider {
       display: flex;
       align-items: center;
       gap: 12px;
       margin-bottom: 24px;
-      color: #9ca3af;
-      font-size: 13px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.2);
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .divider::before, .divider::after {
       content: "";
       flex: 1;
       height: 1px;
-      background: #e5e7eb;
+      background: var(--border);
     }
 
-    /* --- Form --- */
-    .form { display: flex; flex-direction: column; gap: 16px; }
-
-    .field { display: flex; flex-direction: column; gap: 6px; }
-
-    .field label { font-size: 13px; font-weight: 600; color: #374151; }
-
-    .field input {
-      padding: 12px 14px;
-      border: 1.5px solid #e5e7eb;
-      border-radius: 10px;
-      font-size: 14px;
-      color: #1a1a2e;
-      outline: none;
-      transition: border-color 0.15s, box-shadow 0.15s;
-      background: #fafafa;
-    }
-
-    .field input:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-      background: #fff;
-    }
-
-    .field input::placeholder { color: #b0b7c3; }
+    /* ── Form fields ── */
+    .form { display: flex; flex-direction: column; gap: 14px; }
 
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
+    .field { display: flex; flex-direction: column; gap: 6px; }
+
+    .field label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: var(--muted);
+    }
+
+    .field input {
+      padding: 13px 16px;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 12px;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    .field input::placeholder { color: rgba(255,255,255,0.2); }
+
+    .field input:focus {
+      border-color: var(--blue);
+      background: rgba(67,97,238,0.07);
+      box-shadow: 0 0 0 3px rgba(67,97,238,0.2), 0 0 20px rgba(67,97,238,0.15);
+    }
+
+    /* ── Submit button ── */
     .btn-primary {
-      margin-top: 4px;
-      padding: 13px;
-      background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      position: relative;
+      margin-top: 6px;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--blue) 0%, #6c63ff 50%, var(--cyan) 100%);
+      background-size: 200% auto;
       color: #fff;
       border: none;
-      border-radius: 12px;
+      border-radius: 14px;
       font-size: 15px;
       font-weight: 700;
+      letter-spacing: 0.3px;
       cursor: pointer;
-      letter-spacing: 0.2px;
-      transition: opacity 0.15s, transform 0.1s;
+      overflow: hidden;
+      transition: background-position 0.4s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px var(--glow-blue), 0 1px 0 rgba(255,255,255,0.1) inset;
     }
 
-    .btn-primary:hover { opacity: 0.92; }
+    /* Shimmer sweep */
+    .btn-primary::after {
+      content: "";
+      position: absolute;
+      top: 0; left: -100%;
+      width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+      transform: skewX(-20deg);
+      transition: left 0.5s;
+    }
+
+    .btn-primary:hover {
+      background-position: right center;
+      box-shadow: 0 6px 32px rgba(67,97,238,0.5), 0 1px 0 rgba(255,255,255,0.1) inset;
+    }
+
+    .btn-primary:hover::after { left: 160%; }
     .btn-primary:active { transform: scale(0.98); }
 
+    /* ── Terms ── */
     .terms {
       font-size: 12px;
-      color: #9ca3af;
+      color: rgba(255,255,255,0.25);
       text-align: center;
-      margin-top: 4px;
-      line-height: 1.5;
+      margin-top: 6px;
+      line-height: 1.6;
     }
 
-    .terms a { color: #2563eb; text-decoration: none; }
-    .terms a:hover { text-decoration: underline; }
+    .terms a { color: var(--cyan); text-decoration: none; opacity: 0.8; }
+    .terms a:hover { opacity: 1; text-decoration: underline; }
 
+    /* ── Sign-in link ── */
     .signin-link {
       text-align: center;
       font-size: 13px;
-      color: #6b7280;
-      margin-top: 24px;
-      padding-top: 20px;
-      border-top: 1px solid #f3f4f6;
+      color: var(--muted);
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
     }
 
-    .signin-link a { color: #2563eb; font-weight: 600; text-decoration: none; }
-    .signin-link a:hover { text-decoration: underline; }
+    .signin-link a {
+      color: var(--cyan);
+      font-weight: 700;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
 
-    /* --- Success state --- */
+    .signin-link a:hover { color: #fff; }
+
+    /* ── Success state ── */
     .success-msg {
       display: none;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
+      gap: 16px;
       text-align: center;
-      padding: 16px 0;
+      padding: 24px 0;
+      animation: fadeUp 0.4s ease;
     }
 
-    .success-msg .check {
-      width: 64px; height: 64px;
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .success-ring {
+      width: 72px; height: 72px;
       background: linear-gradient(135deg, #22c55e, #16a34a);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 40px rgba(34,197,94,0.4);
+      animation: pop 0.5s cubic-bezier(.26,1.6,.42,1);
     }
 
-    .success-msg .check svg { width: 32px; height: 32px; stroke: #fff; fill: none; }
-    .success-msg h2 { font-size: 22px; font-weight: 700; color: #1a1a2e; }
-    .success-msg p { color: #6b7280; font-size: 14px; }
+    @keyframes pop {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
 
-    /* Responsive */
+    .success-ring svg { width: 34px; height: 34px; stroke: #fff; fill: none; stroke-width: 2.5; }
+    .success-msg h2 { font-size: 24px; font-weight: 800; color: var(--text); }
+    .success-msg p  { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+    /* ── Floating badge ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px 5px 8px;
+      background: rgba(76,201,240,0.1);
+      border: 1px solid rgba(76,201,240,0.2);
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--cyan);
+      margin-bottom: 20px;
+    }
+
+    .badge-dot {
+      width: 7px; height: 7px;
+      background: var(--cyan);
+      border-radius: 50%;
+      animation: blink 1.8s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .brand { display: none; }
+      .form-panel { width: 100%; }
+    }
+
     @media (max-width: 480px) {
-      .board { padding: 36px 24px; border-radius: 0; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+      .form-panel { padding: 32px 20px; }
       .row { grid-template-columns: 1fr; }
+      .social-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Page fade-in */
+    .layout { animation: fadeIn 0.5s ease; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
     }
   </style>
 </head>
 <body>
 
-<div class="board">
-  <!-- Logo -->
-  <div class="logo">
-    <div class="logo-icon">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-      </svg>
+<div class="layout">
+
+  <!-- ══════════════════════════
+       LEFT — Brand Panel
+  ══════════════════════════ -->
+  <div class="brand">
+    <div class="brand-grid"></div>
+    <div class="brand-orb"></div>
+
+    <div class="brand-content">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 6h18M3 10h18M3 14h18M3 18h18" stroke="#fff" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+            <path d="M6 4v2M9 4v4M12 4v2M15 4v4M18 4v2" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/>
+          </svg>
+        </div>
+        <span class="logo-text">Easymeasurement</span>
+      </a>
     </div>
-    <span class="logo-text">Easymeasurement</span>
-  </div>
 
-  <h1>Create your account</h1>
-  <p class="subtitle">Start measuring smarter in seconds</p>
-
-  <!-- Social sign-up options -->
-  <div class="social-options">
-    <button class="btn-social" onclick="handleSocial('Google')">
-      <!-- Google icon -->
-      <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-      </svg>
-      Continue with Google
-    </button>
-
-    <button class="btn-social" onclick="handleSocial('GitHub')">
-      <!-- GitHub icon -->
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#24292e">
-        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/>
-      </svg>
-      Continue with GitHub
-    </button>
-
-    <button class="btn-social" onclick="handleSocial('Microsoft')">
-      <!-- Microsoft icon -->
-      <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">
-        <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
-        <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
-        <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
-        <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
-      </svg>
-      Continue with Microsoft
-    </button>
-  </div>
-
-  <div class="divider">or sign up with email</div>
-
-  <!-- Email form -->
-  <form class="form" id="signupForm" onsubmit="handleSubmit(event)">
-    <div class="row">
-      <div class="field">
-        <label for="firstName">First name</label>
-        <input type="text" id="firstName" placeholder="Jane" required />
+    <div class="brand-hero brand-content">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        Now in public beta
       </div>
-      <div class="field">
-        <label for="lastName">Last name</label>
-        <input type="text" id="lastName" placeholder="Doe" required />
+      <h1>
+        Measure anything<br>
+        <span class="gradient-text">from a photo.</span>
+      </h1>
+      <p>Upload an image, calibrate with a known reference, and get precise real-world measurements — instantly, in your browser.</p>
+    </div>
+
+    <div class="features brand-content">
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+          </svg>
+        </div>
+        <div class="feature-text">
+          <strong>No installation needed</strong>
+          <span>Runs entirely in your browser</span>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div class="feature-text">
+          <strong>Private &amp; secure</strong>
+          <span>Images never leave your device</span>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </div>
+        <div class="feature-text">
+          <strong>Pixel-perfect accuracy</strong>
+          <span>Sub-millimetre precision with calibration</span>
+        </div>
       </div>
     </div>
-
-    <div class="field">
-      <label for="email">Email address</label>
-      <input type="email" id="email" placeholder="jane@example.com" required />
-    </div>
-
-    <div class="field">
-      <label for="password">Password</label>
-      <input type="password" id="password" placeholder="Minimum 8 characters" minlength="8" required />
-    </div>
-
-    <button type="submit" class="btn-primary">Create free account</button>
-
-    <p class="terms">
-      By signing up, you agree to our
-      <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
-    </p>
-  </form>
-
-  <!-- Success state (hidden until form submitted) -->
-  <div class="success-msg" id="successMsg">
-    <div class="check">
-      <svg viewBox="0 0 24 24" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="20 6 9 17 4 12"/>
-      </svg>
-    </div>
-    <h2>You're all set!</h2>
-    <p>Check your inbox for a confirmation email<br>and start measuring smarter.</p>
   </div>
 
-  <p class="signin-link">Already have an account? <a href="index.html">Sign in</a></p>
+  <!-- ══════════════════════════
+       RIGHT — Form Panel
+  ══════════════════════════ -->
+  <div class="form-panel">
+    <div class="card">
+
+      <div class="card-header">
+        <h2>Create your account</h2>
+        <p>Free forever. No credit card required.</p>
+      </div>
+
+      <!-- Social sign-up -->
+      <div class="social-grid">
+        <button class="btn-social" onclick="handleSocial('Google')">
+          <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+          </svg>
+          Google
+        </button>
+        <button class="btn-social" onclick="handleSocial('GitHub')">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+          GitHub
+        </button>
+        <button class="btn-social" onclick="handleSocial('Microsoft')">
+          <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1"   width="9" height="9" fill="#f25022"/>
+            <rect x="11" y="1"  width="9" height="9" fill="#7fba00"/>
+            <rect x="1" y="11"  width="9" height="9" fill="#00a4ef"/>
+            <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+          </svg>
+          Microsoft
+        </button>
+      </div>
+
+      <div class="divider">or continue with email</div>
+
+      <!-- Email form -->
+      <form class="form" id="signupForm" onsubmit="handleSubmit(event)">
+        <div class="row">
+          <div class="field">
+            <label for="firstName">First name</label>
+            <input type="text" id="firstName" placeholder="Jane" required />
+          </div>
+          <div class="field">
+            <label for="lastName">Last name</label>
+            <input type="text" id="lastName" placeholder="Doe" required />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="email">Email address</label>
+          <input type="email" id="email" placeholder="jane@example.com" required />
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Minimum 8 characters" minlength="8" required />
+        </div>
+
+        <button type="submit" class="btn-primary">Create free account</button>
+
+        <p class="terms">
+          By signing up you agree to our
+          <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+        </p>
+      </form>
+
+      <!-- Success state -->
+      <div class="success-msg" id="successMsg">
+        <div class="success-ring">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <h2>You're all set!</h2>
+        <p>Check your inbox for a confirmation email<br>and start measuring smarter.</p>
+      </div>
+
+      <p class="signin-link">Already have an account? <a href="index.html">Sign in</a></p>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -318,11 +641,11 @@
 
   function handleSubmit(e) {
     e.preventDefault();
-    const form = document.getElementById("signupForm");
+    const form    = document.getElementById("signupForm");
     const success = document.getElementById("successMsg");
-    form.style.display = "none";
+    form.style.display    = "none";
     success.style.display = "flex";
-    setTimeout(() => { window.location.href = "index.html"; }, 2000);
+    setTimeout(() => { window.location.href = "index.html"; }, 2200);
   }
 </script>
 
