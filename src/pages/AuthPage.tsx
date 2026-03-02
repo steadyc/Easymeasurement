@@ -18,12 +18,12 @@ export default function AuthPage() {
 
   const handleSignIn = (e: React.FormEvent) => {
     e.preventDefault();
-    signIn();
+    signIn(signInEmail.split("@")[0]);
   };
 
   const handleSignUp = (e: React.FormEvent) => {
     e.preventDefault();
-    signUp();
+    signUp(signUpName);
   };
 
   return (

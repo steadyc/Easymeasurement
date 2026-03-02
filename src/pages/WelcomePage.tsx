@@ -4,11 +4,11 @@ import { useAuth } from "../context/AuthContext";
 const VIDEO_URL = "/videos/mp.MP4";
 
 export default function WelcomePage() {
-  const { isNewUser, markWelcomeSeen } = useAuth();
+  const { isNewUser, username, markWelcomeSeen } = useAuth();
 
   const caption = isNewUser
-    ? "Welcome! Let's get you started."
-    : "Welcome back! Ready to measure?";
+    ? `Welcome, ${username}! Let's get you started.`
+    : `Welcome back, ${username}! Ready to measure?`;
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-black">

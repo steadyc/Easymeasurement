@@ -5,11 +5,12 @@ interface AuthState {
   isNewUser: boolean;
   hasSeenWelcome: boolean;
   hasCompletedOnboarding: boolean;
+  username: string;
 }
 
 interface AuthContextType extends AuthState {
-  signIn: () => void;
-  signUp: () => void;
+  signIn: (username: string) => void;
+  signUp: (username: string) => void;
   markWelcomeSeen: () => void;
   completeOnboarding: () => void;
   signOut: () => void;
@@ -23,22 +24,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isNewUser: false,
     hasSeenWelcome: false,
     hasCompletedOnboarding: false,
+    username: "",
   });
 
-  const signIn = () =>
+  const signIn = (username: string) =>
     setState({
       isLoggedIn: true,
       isNewUser: false,
       hasSeenWelcome: false,
       hasCompletedOnboarding: false,
+      username,
     });
 
-  const signUp = () =>
+  const signUp = (username: string) =>
     setState({
       isLoggedIn: true,
       isNewUser: true,
       hasSeenWelcome: false,
       hasCompletedOnboarding: false,
+      username,
     });
 
   const markWelcomeSeen = () =>
@@ -53,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isNewUser: false,
       hasSeenWelcome: false,
       hasCompletedOnboarding: false,
+      username: "",
     });
 
   return (
