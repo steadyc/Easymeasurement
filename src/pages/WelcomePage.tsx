@@ -1,11 +1,7 @@
 import { useAuth } from "../context/AuthContext";
 
-/**
- * Replace VIDEO_URL with your actual video URL or local path, e.g.:
- *   "/videos/ar-scan.mp4"
- *   "https://cdn.example.com/ar-measurement-loop.mp4"
- */
-const VIDEO_URL = "/videos/ar-scan.mp4";
+// Video file served from public/videos/mp.MP4
+const VIDEO_URL = "/videos/mp.MP4";
 
 export default function WelcomePage() {
   const { isNewUser, markWelcomeSeen } = useAuth();
